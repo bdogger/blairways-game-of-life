@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+
+    <style type="text/css">
+        canvas {
+            border: 1px solid black;
+        }
+    </style>
+</head>
+<body>
+
+<canvas id="game" width="500" height="500"></canvas>
+
+<script type="text/javascript">
+    var cells = [];
+    for (var i = 0; i < 500; i++) {
+        var row = [];
+        for (var j = 0; j < 500; j++) {
+            var number = Math.floor((Math.random() * 10) + 1);
+            if (number == 10) row.push(true);
+            else row.push(false);
+        }
+        cells.push(row);
+    }
+
+    var canvas = document.getElementById('game');
+    if (canvas.getContext) {
+        var ctx = canvas.getContext("2d");
+
+        ctx.fillStyle = "rgb(200,0,0)";
+        doCycle();
+    }
+
+    function fillCanvas(ctx, cells) {
+        for (var i = 0; i < cells.length; i++) {
+            var row = cells[i];
+            for (var j = 0; j < row.length; j++) {
+                if (row[j]) {
+                    ctx.fillRect(i, j, 1, 1);
+                }
+            }
+        }
+    }
+
+    function doCycle() {
+        ctx.clearRect(0, 0, 500, 500);
+        fillCanvas(ctx, cells);
+        cells = updateCells(cells);
+
+        setTimeout(doCycle, 1000);
+    }
+
+    function updateCells(cells) {
+        var newCells = [];
+        var previousRow = null;
+        for (var i = 0; i < cells.length; i++) {
+            var newRow = [];
+            var row = cells[i];
+            var nextRow = null;
+            if (i != cells.length - 1) {
+                nextRow = cells[i + 1];
+            }
+            for (var j = 0; j < row.length; j++) {
+                var neighbors = 0;
+
+                //left neighbor
+                if (j != 0 && row[j - 1]) {
+                    neighbors += 1;
+                }
+                //right neighbor
+                if (j != row.length - 1 && row[j + 1]) {
+                    neighbors += 1;
+                }
+
+                //top neighbor
+                if (previousRow != null && previousRow[j]) {
+                    neighbors += 1;
+                }
+
+                //top left
+                if (previousRow != null && j != 0 && previousRow[j - 1]) {
+                    neighbors += 1;
+                }
+
+                //top right
+                if (previousRow != null && j != row.length - 1 && previousRow[j + 1]) {
+                    neighbors += 1;
+                }
+
+                //bottom
+                if (nextRow != null && nextRow[j]) {
+                    neighbors += 1;
+                }
+
+                //bottom left
+                if (nextRow != null && j != 0 && nextRow[j - 1]) {
+                    neighbors += 1;
+                }
+
+                //bottom right
+                if (nextRow != null && j != row.length && nextRow[j + 1]) {
+                    neighbors += 1;
+                }
+
+                var alive = row[j];
+                // cell is currently alive
+                if (alive) {
+                    if (neighbors < 2 || neighbors > 3) {
+                        alive = false;
+                    } else {
+                        alive = true;
+                    }
+                } else if(neighbors == 3) {
+                    alive = true;
+                }
+                newRow[j] = alive;
+            }
+            newCells.push(newRow);
+            previousRow = row;
+        }
+        return newCells;
+    }
+</script>
+</body>
+</html>

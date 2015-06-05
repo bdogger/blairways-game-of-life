@@ -1,0 +1,3 @@
+# blairways-game-of-life
+
+just playing with canvas not making optimized code...
